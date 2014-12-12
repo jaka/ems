@@ -92,9 +92,11 @@ main(void) {
   int fd;
   int i = 0;
   unsigned char buffer[5];
-  double T;
+  unsigned int neg;
+  int T;
+  char sign = ' ';
 
-  puts("readtemp v0.1");
+  puts("readtemp v0.2");
 
   fd = open(device, O_RDWR | O_NONBLOCK);
   if(fd == -1) {
@@ -117,7 +119,17 @@ main(void) {
 
   T = hex2int(buffer + 2, 2) << 8;
   T += hex2int(buffer, 2);
-  printf("T = %.2f\n", T/16 );
+
+  neg = T >> 15;
+
+  if (neg) {
+    T--;
+    T =~ T;
+    T &= 0xFFFF;
+    sign = '-';
+  }
+
+  printf("T = %c%.2f\n", sign, (float)(T)/16);
 
   close(fd);
 
